@@ -1,0 +1,281 @@
+//Filter 1: Grayscale Conversion
+// Function to convert the image to grayscale
+void gray_scale(const string name)
+{
+    Image pic(name);
+    for (int i = 0; i < pic.width; i++)
+    {
+        for (int j = 0; j < pic.height; j++)
+        {
+            unsigned int avg = 0;
+
+            for (int k = 0; k < 3; k++)
+            {
+                avg += pic(i, j, k);
+            }
+
+            avg /= 3;
+
+            pic(i, j, 0) = avg;
+            pic(i, j, 1) = avg;
+            pic(i, j, 2) = avg;
+        }
+    }
+
+    Saving(name, pic);
+}
+//Filter 4: Merge Images
+// Function to merge two images
+void merge_images(const string image1_name)
+{
+    Image image1(image1_name);
+
+    string image2_name;
+    cout << "Enter the second image file name: ";
+    cin.ignore();
+    getline(cin, image2_name);
+
+    Image image2(image2_name);
+
+    // Get the dimensions of the two images
+    int W1 = image1.width;
+    int H1 = image1.height;
+    int W2 = image2.width;
+    int H2 = image2.height;
+
+    cout << "Choose the merging option:\n";
+    cout << "1.Resize both images to the larger dimensions.\n";
+    cout << "2.Resize both images to the smaller dimensions.\n";
+    cout << "Enter your choice (1/2): ";
+
+    int choice;
+    cin >> choice;
+
+    switch (choice)
+    {
+    case 1:
+    {
+        // Resize both images to the larger dimensions
+        int mergedWidth = max(W1, W2);
+        int mergedHeight = max(H1, H2);
+
+        // Create new images to store the resized versions
+        Image resizedImage1(mergedWidth, mergedHeight);
+        Image resizedImage2(mergedWidth, mergedHeight);
+
+        // Resize image1
+        for (int i = 0; i < mergedHeight; i++)
+        {
+            for (int j = 0; j < mergedWidth; j++)
+            {
+                for (int k = 0; k < 3; k++)
+                {
+                    int RealX = static_cast<int> (j * (W1 / static_cast<double> (mergedWidth)));
+                    int Real_Y = static_cast<int> (i * (H1 / static_cast<double> (mergedHeight)));
+                    resizedImage1(j, i, k) = image1(RealX, Real_Y, k);
+                }
+            }
+        }
+
+        // Resize image2
+        for (int i = 0; i < mergedHeight; i++)
+        {
+            for (int j = 0; j < mergedWidth; j++)
+            {
+                for (int k = 0; k < 3; k++)
+                {
+                    int RealX = static_cast<int>(j * (W2 / static_cast<double> (mergedWidth)));
+                    int Real_Y = static_cast<int>(i * (H2 / static_cast<double> (mergedHeight)));
+                    resizedImage2(j, i, k) = image2(RealX, Real_Y, k);
+                }
+            }
+        }
+
+        // Merge the resized images with weighted average
+        Image merged(mergedWidth, mergedHeight);
+        for (int i = 0; i < mergedHeight; i++)
+        {
+            for (int j = 0; j < mergedWidth; j++)
+            {
+                for (int k = 0; k < 3; k++)
+                {
+                    merged(j, i, k) = (resizedImage1(j, i, k) + resizedImage2(j, i, k)) / 2;
+                }
+            }
+        }
+        Saving(image1_name, merged);
+        break;
+    }
+    case 2:
+    {
+
+        // Resize both images to the smaller dimensions
+        int mergedWidth = min(W1, W2);
+        int mergedHeight = min(H1, H2);
+
+        // Create new images to store the resized versions
+        Image resizedImage1(mergedWidth, mergedHeight);
+        Image resizedImage2(mergedWidth, mergedHeight);
+
+        // Resize image1
+        for (int i = 0; i < mergedHeight; i++)
+        {
+            for (int j = 0; j < mergedWidth; j++)
+            {
+                for (int k = 0; k < 3; k++)
+                {
+                    resizedImage1(j, i, k) = image1(j, i, k);
+                }
+            }
+        }
+
+        // Resize image2
+        for (int i = 0; i < mergedHeight; i++)
+        {
+            for (int j = 0; j < mergedWidth; j++)
+            {
+                for (int k = 0; k < 3; k++)
+                {
+                    resizedImage2(j, i, k) = image2(j, i, k);
+                }
+            }
+        }
+
+        // Merge the resized images with weighted average
+        Image merged(mergedWidth, mergedHeight);
+        for (int i = 0; i < mergedHeight; i++)
+        {
+            for (int j = 0; j < mergedWidth; j++)
+            {
+                for (int k = 0; k < 3; k++)
+                {
+                    merged(j, i, k) = (resizedImage1(j, i, k) + resizedImage2(j, i, k)) / 2;
+                }
+            }
+        }
+
+        // Save the merged image
+        Saving(image1_name, merged);
+        break;
+    }
+    default:
+        cout << "Invalid choice. Please enter 1 or 2." << endl;
+        break;
+    }
+}
+//Filter 7: Darken and Lighten Image (Two filters in this task)
+// Function to darken or lighten the image by 50%
+void darken_and_lighten(const string name)
+{
+    while (true)
+    {
+        char choice;
+        cout << "Choose an option:\n";
+        cout << "A) Darker\n";
+        cout << "B) Lighter\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        if (toupper(choice) == 'A')
+        {
+            // Darken the image
+            Image pic(name);
+            for (int i = 0; i < pic.width; i++)
+            {
+                for (int j = 0; j < pic.height; j++)
+                {
+                    for (int k = 0; k < 3; k++)
+                    {
+                        pic(i, j, k) = max(0, int(pic(i, j, k) * 0.5)); // Reduce each pixel value by half
+                    }
+                }
+            }
+
+            Saving(name, pic);
+            break;
+        }
+        else if (toupper(choice) == 'B')
+        {
+            // Lighten the image
+            Image pic(name);
+            for (int i = 0; i < pic.width; i++)
+            {
+                for (int j = 0; j < pic.height; j++)
+                {
+                    for (int k = 0; k < 3; k++)
+                    {
+                        pic(i, j, k) = min(255, int(pic(i, j, k) * 1.5)); // Increase each pixel value by half
+                    }
+                }
+            }
+
+            Saving(name, pic);
+            break;
+        }
+        else
+        {
+            cout << "Invalid choice. Please enter 'A' for darker or 'B' for lighter." << endl;
+        }
+    }
+}
+//Filter 10: Detect Image Edges
+// Function to detect edges in the image
+void detect_edges(const string name)
+{
+    Image pic(name);
+
+    Image edges(pic.width, pic.height);
+
+    // Define a threshold for edge detection
+    int threshold = 60;
+
+    for (int i = 1; i < pic.width - 1; i++)
+    {
+        for (int j = 1; j < pic.height - 1; j++)
+        {
+            // Calculate intensity differences in horizontal and vertical directions
+            int diff_x = pic(i + 1, j, 0) - pic(i - 1, j, 0);
+            int diff_y = pic(i, j + 1, 0) - pic(i, j - 1, 0);
+
+            // -> the magnitude of the gradient
+            int magnitude = sqrt(diff_x * diff_x + diff_y * diff_y);
+
+            // Set the pixel to black if the magnitude is above the threshold and white otherwise
+            if (magnitude > threshold)
+            {
+                // Highlight edges by setting to black
+                edges(i, j, 0) = 0;
+                edges(i, j, 1) = 0;
+                edges(i, j, 2) = 0;
+            }
+            else
+            {
+                // Set non-edge pixels to white
+                edges(i, j, 0) = 255;
+                edges(i, j, 1) = 255;
+                edges(i, j, 2) = 255;
+            }
+        }
+    }
+    Saving(name, edges);
+}
+//Filter 16
+// filter for Purble 
+void purple(const string name)
+{
+    Image pic(name);
+    for (int i = 0; i < pic.width; i++)
+    {
+        for (int j = 0; j < pic.height; j++)
+        {
+            for (int k = 0; k < 3; k++)
+            {
+                pic(i, j, 0) = min(255, pic(i, j, 0) + 6);
+                pic(i, j, 2) = min(255, pic(i, j, 2) + 13);
+                pic(i, j, 1) = max(0, pic(i, j, 1) - 13);
+            }
+        }
+
+    }
+    Saving(name, pic);
+}
